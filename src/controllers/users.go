@@ -5,30 +5,39 @@ import (
 	"devbook-api/src/database"
 	"devbook-api/src/models"
 	"devbook-api/src/repositories"
+	"devbook-api/src/responses"
 	"encoding/json"
-	"fmt"
 	"io"
-	"log"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	reqBody, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		log.Fatal(err)
+		responses.Error(w, http.StatusUnprocessableEntity, err)
+		return
 	}
 
 	var user models.User
 
 	if err := json.Unmarshal(reqBody, &user); err != nil {
-		log.Fatal(err)
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = user.Prepare(); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
 	}
 
 	db, err := database.Connect()
 
 	if err != nil {
-		log.Fatal(err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	defer func(db *sql.DB) {
@@ -39,18 +48,56 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	userId, err := repo.Create(user)
 
 	if err != nil {
-		log.Fatal(err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
 	}
 
-	_, _ = w.Write([]byte(fmt.Sprintf("Usuário inserido com id %d", userId)))
+	user.ID = userId
+
+	responses.JSON(w, http.StatusCreated, user)
 }
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Buscando usuários"))
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			responses.Error(w, http.StatusInternalServerError, err)
+		}
+	}(db)
+	repo := repositories.NewUserRepository(db)
+	users, err := repo.Get(nameOrNick)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusOK, users)
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Buscando usuário"))
+	userId, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/users/"), 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+	repo := repositories.NewUserRepository(db)
+	user, err := repo.GetById(userId)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusOK, user)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {

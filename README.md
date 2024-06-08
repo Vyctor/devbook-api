@@ -17,6 +17,6 @@ TBD
 ## Como executar o projeto
 
 1. Clone o repositório
-2. Preencha as variáveis de ambiente de acordo com o arquivo `.env.example`
+2. Preencha as variáveis de ambiente conforme o arquivo `.env.example`
 3. Execute o comando `docker-compose up` na raiz do projeto
 4. Acesse a API
