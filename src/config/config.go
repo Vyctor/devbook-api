@@ -10,6 +10,7 @@ import (
 var (
 	AppPort           = ""
 	DbSringConnection = ""
+	AppSecret         []byte
 )
 
 func LoadEnvs() {
@@ -21,6 +22,7 @@ func LoadEnvs() {
 
 	var (
 		appPort    = os.Getenv("APP_PORT")
+		appSecret  = os.Getenv("APP_SECRET")
 		dbHost     = os.Getenv("DB_HOST")
 		dbPort     = os.Getenv("DB_PORT")
 		dbName     = os.Getenv("DB_NAME")
@@ -33,6 +35,7 @@ func LoadEnvs() {
 	}
 
 	AppPort = appPort
+	AppSecret = []byte(appSecret)
 	DbSringConnection = makeStringConnection(dbHost, dbPort, dbName, dbUser, dbPassword)
 }
 

@@ -8,8 +8,11 @@ import (
 	"net/http"
 )
 
-func main() {
+func init() {
 	config.LoadEnvs()
+}
+
+func main() {
 	fmt.Printf("Rodando API na port %s\n", config.AppPort)
 
 	r := router.Gerar()
