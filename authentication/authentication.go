@@ -45,6 +45,19 @@ func extractToken(r *http.Request) string {
 	return ""
 }
 
+func ExtractUserId(r *http.Request) (uint64, error) {
+	tokenString := extractToken(r)
+	token, err := jwt.Parse(tokenString, returnVerificationKey)
+	if err != nil {
+		return 0, err
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userId := uint64(claims["userId"].(float64))
+		return userId, nil
+	}
+	return 0, errors.New("token inválido")
+}
+
 func returnVerificationKey(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("método de assinatura inesperado! %v", token.Header["alg"])
