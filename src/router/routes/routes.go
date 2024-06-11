@@ -16,6 +16,7 @@ type Route struct {
 func Setup(r *mux.Router) *mux.Router {
 	routes := usersRoutes
 	routes = append(routes, loginRoute)
+	routes = append(routes, postsRoutes...)
 	for _, route := range routes {
 		if route.RequireAuthentication {
 			r.HandleFunc(route.Uri, middlewares.Authenticate(route.Function)).Methods(route.Method)
