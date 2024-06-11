@@ -5,7 +5,32 @@ O projeto consiste em uma API para uma rede social, chamada Dev Book.
 
 ## Funcionalidades
 
-TBD
+A API possui as seguintes funcionalidades:
+
+### Segurança
+- /login
+- /update-password
+
+### Usuários
+- Buscar usuários por nome
+- Buscar usuário por id
+- Atualizar usuário
+- Deletar usuário
+- Atualizar 
+- Seguir e deixar de seguir 
+- Listar seguidores
+- Listar seguindo
+
+### Posts
+- Criar
+- Atualizar
+- Deletar
+- Curtir
+- Descurtir
+- Buscar posts por usuário
+- Buscar post por Id
+- Buscar todos os posts
+
 
 ## Tecnologias
 
